@@ -9,20 +9,28 @@ package com.mycompany.f1_manager;
  * @author hp
  */
 public class Corredor {
-    String id;
-    String nombre;
-    int numero;
-    int habilidad;
-    int experiencia;
-    String equipoID;
-    static int contador = 1;
+    private final String id;
+    private final String nombre;
+    private final int numero;
+    private final int habilidad;
+    private final int experiencia;
+    private final String equipoId;
+    private static int contador = 1;
 
-    public Corredor(String nombre, int numero, int habilidad, int experiencia, String equipoID) {
+    public Corredor(String nombre, int numero, int habilidad, int experiencia, String equipoId) {
+        this.id = "DR-" + String.format("%05d", contador++);
         this.nombre = nombre;
         this.numero = numero;
         this.habilidad = habilidad;
         this.experiencia = experiencia;
-        this.equipoID = equipoID;
-        this.id = String.format("DR-%05d", contador++);
+        this.equipoId = equipoId;
     }
+
+    // Getters
+    public String getId() { return id; }
+    public String getNombre() { return nombre; }
+    public int getNumero() { return numero; }
+    public int getHabilidad() { return habilidad; }
+    public int getExperiencia() { return experiencia; }
+    public String getEquipoId() { return equipoId; }
 }
