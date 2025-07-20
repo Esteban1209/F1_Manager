@@ -52,6 +52,16 @@ public class Equipo {
         }
         return false;
     }
+    public boolean contieneCorredorConNombre(String nombre) {
+        if (nombre == null || nombre.trim().isEmpty()) return false;
+        String nombreBuscado = nombre.trim().toLowerCase();
+        for (Corredor c : corredores) {
+            if (c != null && c.getNombre().trim().toLowerCase().equals(nombreBuscado)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     // Getters
     public String getId() { return id; }

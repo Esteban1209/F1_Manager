@@ -20,15 +20,24 @@ public class Equipos {
             JOptionPane.showMessageDialog(null, "Máximo de equipos alcanzado (10)");
             return;
         }
+        String nombre;
+        boolean nombreRepetido;
+        do {
+            nombre = JOptionPane.showInputDialog("Nombre del equipo:");
+            nombreRepetido = existeNombreEquipo(nombre);
+        
+            if (nombreRepetido) {
+                JOptionPane.showMessageDialog(null, "¡Error! El nombre '" + nombre + "' ya existe");
+            }
+        } while (nombreRepetido || nombre == null || nombre.trim().isEmpty());
 
-        String nombre = Data.pedirTexto("Nombre del equipo:");
-        int performance = Data.pedirEntero("Performance (0-10):", 0, 10);
-        double presupuesto = Data.pedirDecimal("Presupuesto:");
-
+        int performance = Integer.parseInt(JOptionPane.showInputDialog("Performance (0-10):"));
+        double presupuesto = Double.parseDouble(JOptionPane.showInputDialog("Presupuesto:"));
+    
         equipos[totalEquipos++] = new Equipo(nombre, performance, presupuesto);
         JOptionPane.showMessageDialog(null, "Equipo registrado con ID: " + equipos[totalEquipos-1].getId());
     }
-
+    
     public void registrarCorredor() {
         if (totalEquipos == 0) {
             JOptionPane.showMessageDialog(null, "Primero registre al menos un equipo");
@@ -43,7 +52,20 @@ public class Equipos {
             return;
         }
 
-        String nombre = Data.pedirTexto("Nombre del corredor:");
+            String nombre;
+        boolean nombreRepetido;
+        do {
+            nombre = JOptionPane.showInputDialog("Nombre del corredor:");
+            if (nombre == null) return; // Si el usuario cancela
+        
+            nombreRepetido = existeNombreCorredorEnCualquierEquipo(nombre);
+        
+            if (nombreRepetido) {
+                JOptionPane.showMessageDialog(null, 
+                    "¡Error! El corredor '" + nombre + "' ya existe en otro equipo");
+            }
+        } while (nombreRepetido || nombre.trim().isEmpty());
+        
         int numero = Data.pedirEntero("Número único del corredor (1-999):", 1, 999);
         while (numeroExiste(numero)) {
             JOptionPane.showMessageDialog(null, "Número ya existe");
@@ -56,6 +78,16 @@ public class Equipos {
         Corredor nuevo = new Corredor(nombre, numero, habilidad, experiencia, equipo.getId());
         equipo.agregarCorredor(nuevo);
         JOptionPane.showMessageDialog(null, "Corredor registrado con ID: " + nuevo.getId());
+    }
+    private boolean existeNombreCorredorEnCualquierEquipo(String nombre) {
+        if (nombre == null) return false;
+    
+        for (int i = 0; i < totalEquipos; i++) {
+            if (equipos[i] != null && equipos[i].contieneCorredorConNombre(nombre)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void asignarPrincipal() {
@@ -108,6 +140,28 @@ public class Equipos {
     private boolean numeroExiste(int numero) {
         for (Equipo e : equipos) {
             if (e != null && e.existeNumeroCorredor(numero)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    private boolean existeNombreEquipo(String nombre) {
+        if (nombre == null) return false;
+    
+        for (int i = 0; i < totalEquipos; i++) {
+            if (equipos[i] != null && 
+                equipos[i].getNombre().equalsIgnoreCase(nombre.trim())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private boolean existeNombreCorredor(String nombre) {
+        if (nombre == null) return false;
+    
+        for (int i = 0; i < totalEquipos; i++) {
+            if (equipos[i] != null && equipos[i].contieneCorredorConNombre(nombre)) {
                 return true;
             }
         }
