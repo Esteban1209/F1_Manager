@@ -60,5 +60,5 @@ Este proyecto está bajo la licencia MIT. Ver LICENSE para más detalles.
 
 Hecho con ❤️ para la clase de Introducción a la Programación del profe Andres
 
-#Nota:
+##Nota:
 Si van a hacer un cambio o algo importante por favor, consultar a  Didier Escamilla
