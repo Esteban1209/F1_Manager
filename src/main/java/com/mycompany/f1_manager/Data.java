@@ -23,10 +23,21 @@ public class Data {
         Integer num = null;
         while (num == null || num < min || num > max) {
             String input = JOptionPane.showInputDialog(mensaje);
+
+            if (input == null) {
+                JOptionPane.showMessageDialog(null, "Operación cancelada.");
+                return -1; 
+            }
+
             try {
                 num = Integer.parseInt(input);
+                if (num < min || num > max) {
+                    JOptionPane.showMessageDialog(null, 
+                        "El valor debe estar entre " + min + " y " + max + ". Intente nuevamente.");
+                }
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(null, "Debe ingresar un número entre " + min + " y " + max);
+                JOptionPane.showMessageDialog(null, 
+                    "Entrada inválida. Debe ingresar un número entero.");
             }
         }
         return num;

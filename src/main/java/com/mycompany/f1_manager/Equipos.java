@@ -17,23 +17,35 @@ public class Equipos {
 
     public void registrarEquipo() {
         if (totalEquipos >= 10) {
-            JOptionPane.showMessageDialog(null, "Máximo de equipos alcanzado (10)");
+            JOptionPane.showMessageDialog(null, "❌ No se pueden registrar más equipos. Límite alcanzado (10).");
             return;
         }
+
         String nombre;
         boolean nombreRepetido;
         do {
             nombre = JOptionPane.showInputDialog("Nombre del equipo:");
-            nombreRepetido = existeNombreEquipo(nombre);
-        
-            if (nombreRepetido) {
-                JOptionPane.showMessageDialog(null, "¡Error! El nombre '" + nombre + "' ya existe");
-            }
-        } while (nombreRepetido || nombre == null || nombre.trim().isEmpty());
 
-        int performance = Integer.parseInt(JOptionPane.showInputDialog("Performance (0-10):"));
+            // Nombre vacío o cancelado
+            if (nombre == null) {
+                JOptionPane.showMessageDialog(null, "Operación cancelada por el usuario.");
+                return; // Sale si el usuario presiona "Cancelar" todavia en test
+            } 
+            else if (nombre.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(null, "El nombre no puede estar vacío. Intente nuevamente.");
+                nombreRepetido = true; // Fuerza repetición de la ventanita
+                continue;
+            }
+
+            nombreRepetido = existeNombreEquipo(nombre);
+            if (nombreRepetido) {
+                JOptionPane.showMessageDialog(null, "El nombre '" + nombre + "' ya está en uso. Elija otro.");
+            }
+        } while (nombreRepetido || nombre.trim().isEmpty());
+
+        int performance = Data.pedirEntero("Performance (0-10):", 0, 10);
         double presupuesto = Double.parseDouble(JOptionPane.showInputDialog("Presupuesto:"));
-    
+            
         equipos[totalEquipos++] = new Equipo(nombre, performance, presupuesto);
         JOptionPane.showMessageDialog(null, "Equipo registrado con ID: " + equipos[totalEquipos-1].getId());
     }

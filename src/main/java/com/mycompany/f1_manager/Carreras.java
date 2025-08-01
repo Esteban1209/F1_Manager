@@ -3,93 +3,238 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.mycompany.f1_manager;
-
+import javax.swing.JOptionPane;
 /**
  *
  * @author hp
  */
-import javax.swing.JOptionPane;
-
+/**
+ * CLASE QUE GESTIONA TODAS LAS CARRERAS DE FÓRMULA 1
+ * 
+ * Funcionalidades principales:
+ * - Simulación de carreras con física básica
+ * - Historial de resultados
+ * - Visualización de podios
+ */
 public class Carreras {
-    private final Carrera[] historialCarreras = new Carrera[50];
+    // Array para almacenar hasta 50 carreras
+    private Carrera[] historialCarreras = new Carrera[50];
+    
+    // Contador de carreras realizadas
     private int totalCarreras = 0;
-    private static final double DISTANCIA_VUELTA = 15.0; // 15 km por vuelta
+    
+    // Longitud fija de la pista (15 km por vuelta)
+    private static final double DISTANCIA_VUELTA = 15.0;
 
+    // ►►► MÉTODOS PÚBLICOS ◄◄◄
+
+    /**
+     * Simula una nueva carrera con los equipos disponibles
+     * @param gestorEquipos Objeto que contiene los equipos registrados
+     */
     public void simularCarrera(Equipos gestorEquipos) {
-        Equipo[] equipos = gestorEquipos.getEquipos();
-        
-        if (gestorEquipos.getTotalEquipos() < 2) {
-            JOptionPane.showMessageDialog(null, "Se necesitan al menos 2 equipos");
+        // Validación básica: mínimo 2 equipos
+        if (!validarEquipos(gestorEquipos)) {
             return;
         }
 
-        // Verificar que todos los equipos tengan corredor principal
-        for (Equipo e : equipos) {
-            if (e != null && e.getPrincipal() == null) {
-                JOptionPane.showMessageDialog(null, e.getNombre() + " no tiene corredor principal asignado");
-                return;
-            }
-        }
+        // Configuración de la carrera
+        String nombreCarrera = pedirNombreCarrera();
+        if (nombreCarrera == null) return; // Si el usuario cancela
 
-        String nombreCarrera = Data.pedirTexto("Nombre de la carrera:");
-        int vueltas = Data.pedirEntero("Número de vueltas (1-100):", 1, 100);
+        int vueltas = Data.pedirEntero("Ingrese número de vueltas (1-100):", 1, 100);
 
-        // Simular carrera
-        Equipo ganador = null;
-        Corredor corredorGanador = null;
-        double mejorTiempo = Double.MAX_VALUE;
+        // Simulación y resultados
+        ResultadoCarrera[] resultados = calcularResultados(gestorEquipos, vueltas);
+        ordenarResultados(resultados);
 
-        for (Equipo e : equipos) {
-            if (e == null || e.getPrincipal() == null) continue;
-
-            Corredor c = e.getPrincipal();
-            double coef = calcularCoeficiente(c, e);
-            
-            double velocidad = 200 * coef; // km/h
-            double tiempoVuelta = (DISTANCIA_VUELTA / velocidad) * 60; // en minutos
-            double tiempoTotal = tiempoVuelta * vueltas;
-
-            if (tiempoTotal < mejorTiempo || 
-                (tiempoTotal == mejorTiempo && c.getExperiencia() > corredorGanador.getExperiencia())) {
-                mejorTiempo = tiempoTotal;
-                ganador = e;
-                corredorGanador = c;
-            }
-        }
-
-        // Guardar carrera en historial
-        historialCarreras[totalCarreras++] = new Carrera(
-            nombreCarrera, vueltas, DISTANCIA_VUELTA * vueltas,
-            ganador.getNombre(), corredorGanador.getNombre(), mejorTiempo
-        );
-
-        mostrarPodio(nombreCarrera, vueltas, ganador, corredorGanador);
+        // Guardar y mostrar resultados
+        guardarCarreraEnHistorial(nombreCarrera, vueltas, resultados);
+        mostrarPodio(nombreCarrera, vueltas, resultados);
     }
 
-    private double calcularCoeficiente(Corredor c, Equipo e) {
-        double coef = (c.getHabilidad() * 0.20) + (c.getExperiencia() * 0.25) + (e.getPerformance() * 0.55);
+    /**
+     * Obtiene el historial completo de carreras
+     * @return Array de objetos Carrera
+     */
+    public Carrera[] getHistorialCarreras() {
+        return this.historialCarreras;
+    }
+
+    /**
+     * Obtiene el número total de carreras realizadas
+     * @return Número de carreras
+     */
+    public int getTotalCarreras() {
+        return this.totalCarreras;
+    }
+
+    // ►►► MÉTODOS PRIVADOS ◄◄◄
+
+    /**
+     * Valida los requisitos mínimos para una carrera
+     */
+    private boolean validarEquipos(Equipos gestorEquipos) {
+        // Verificar cantidad mínima de equipos
+        if (gestorEquipos.getTotalEquipos() < 2) {
+            JOptionPane.showMessageDialog(null, 
+                "¡Se necesitan al menos 2 equipos para correr!", 
+                "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        // Verificar corredores principales
+        for (Equipo equipo : gestorEquipos.getEquipos()) {
+            if (equipo != null && equipo.getPrincipal() == null) {
+                JOptionPane.showMessageDialog(null, 
+                    "El equipo " + equipo.getNombre() + " no tiene piloto principal", 
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Solicita el nombre de la carrera al usuario
+     */
+    private String pedirNombreCarrera() {
+        String nombre;
+        do {
+            nombre = JOptionPane.showInputDialog("Ingrese el nombre del Gran Premio:");
+            if (nombre == null) return null; // Cancelado por usuario
+            
+            if (nombre.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(null, 
+                    "El nombre no puede estar vacío", 
+                    "Error", JOptionPane.WARNING_MESSAGE);
+            }
+        } while (nombre.trim().isEmpty());
         
-        // Reglas especiales
-        if (c.getHabilidad() == 10) coef *= 1.05;
-        if (c.getExperiencia() < 3) coef *= 0.90;
+        return nombre;
+    }
+
+    /**
+     * Calcula los resultados para todos los corredores
+     */
+    private ResultadoCarrera[] calcularResultados(Equipos gestorEquipos, int vueltas) {
+        ResultadoCarrera[] resultados = new ResultadoCarrera[gestorEquipos.getTotalEquipos()];
+        int index = 0;
+        
+        for (Equipo equipo : gestorEquipos.getEquipos()) {
+            if (equipo == null) continue;
+            
+            Corredor piloto = equipo.getPrincipal();
+            double coeficiente = calcularCoeficiente(piloto, equipo);
+            double velocidad = 200 * coeficiente;
+            double tiempoTotal = (DISTANCIA_VUELTA / velocidad) * 60 * vueltas;
+            
+            resultados[index++] = new ResultadoCarrera(
+                equipo.getNombre(),
+                piloto.getNombre(),
+                tiempoTotal,
+                piloto.getExperiencia()
+            );
+        }
+        return resultados;
+    }
+
+    /**
+     * Fórmula para calcular el coeficiente de rendimiento
+     */
+    private double calcularCoeficiente(Corredor piloto, Equipo equipo) {
+        double coef = (piloto.getHabilidad() * 0.20) + 
+                     (piloto.getExperiencia() * 0.25) + 
+                     (equipo.getPerformance() * 0.55);
+        
+        // Bonificaciones/penalizaciones
+        if (piloto.getHabilidad() == 10) coef *= 1.05;
+        if (piloto.getExperiencia() < 3) coef *= 0.90;
         
         return coef;
     }
 
-    private void mostrarPodio(String nombreCarrera, int vueltas, Equipo ganador, Corredor corredorGanador) {
-        StringBuilder podio = new StringBuilder("===== PODIO FINAL =====\n");
-        podio.append(nombreCarrera).append(" - ").append(vueltas).append(" vueltas\n\n");
-        podio.append("1º ").append(ganador.getNombre()).append(" - ").append(corredorGanador.getNombre()).append("\n");
-        podio.append("\n¡Gran Premio Finalizado!");
+    /**
+     * Ordena los resultados por tiempo (y experiencia en empates)
+     */
+    private void ordenarResultados(ResultadoCarrera[] resultados) {
+        for (int i = 0; i < resultados.length-1; i++) {
+            if (resultados[i] == null) continue;
+            
+            for (int j = 0; j < resultados.length-i-1; j++) {
+                if (resultados[j] == null || resultados[j+1] == null) continue;
+                
+                boolean debeIntercambiar = 
+                    resultados[j].getTiempo() > resultados[j+1].getTiempo() ||
+                    (resultados[j].getTiempo() == resultados[j+1].getTiempo() && 
+                     resultados[j].getExperiencia() < resultados[j+1].getExperiencia());
+                
+                if (debeIntercambiar) {
+                    ResultadoCarrera temp = resultados[j];
+                    resultados[j] = resultados[j+1];
+                    resultados[j+1] = temp;
+                }
+            }
+        }
+    }
+
+    /**
+     * Guarda los resultados en el historial
+     */
+    private void guardarCarreraEnHistorial(String nombre, int vueltas, ResultadoCarrera[] resultados) {
+        if (resultados.length > 0 && resultados[0] != null) {
+            historialCarreras[totalCarreras++] = new Carrera(
+                nombre,
+                vueltas,
+                DISTANCIA_VUELTA * vueltas,
+                resultados[0].getEquipo(),
+                resultados[0].getCorredor(),
+                resultados[0].getTiempo()
+            );
+        }
+    }
+
+    /**
+     * Muestra el podio en una ventana emergente
+     */
+    private void mostrarPodio(String nombre, int vueltas, ResultadoCarrera[] resultados) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("PODIO OFICIAL\n")
+          .append("== ").append(nombre).append(" - ").append(vueltas).append(" vueltas\n\n");
         
-        JOptionPane.showMessageDialog(null, podio.toString());
+        int mostrados = 0;
+        for (int i = 0; i < resultados.length && mostrados < 3; i++) {
+            if (resultados[i] != null) {
+                sb.append(i+1).append("º 🚗 ")
+                  .append(resultados[i].getEquipo())
+                  .append(" - ")
+                  .append(resultados[i].getCorredor())
+                  .append("\n");
+                mostrados++;
+            }
+        }
+        
+        sb.append("\n¡Gran Premio Finalizado!");
+        JOptionPane.showMessageDialog(null, sb.toString(), "Resultados", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    public Carrera[] getHistorialCarreras() {
-        return historialCarreras;
-    }
+    // ►►► CLASE INTERNA PARA RESULTADOS TEMPORALES ◄◄◄
+    private static class ResultadoCarrera {
+        private final String equipo;
+        private final String corredor;
+        private final double tiempo;
+        private final int experiencia;
 
-    public int getTotalCarreras() {
-        return totalCarreras;
+        public ResultadoCarrera(String equipo, String corredor, double tiempo, int experiencia) {
+            this.equipo = equipo;
+            this.corredor = corredor;
+            this.tiempo = tiempo;
+            this.experiencia = experiencia;
+        }
+
+        public String getEquipo() { return equipo; }
+        public String getCorredor() { return corredor; }
+        public double getTiempo() { return tiempo; }
+        public int getExperiencia() { return experiencia; }
     }
 }
