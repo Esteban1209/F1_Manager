@@ -26,7 +26,7 @@ public class Carreras {
     // Longitud fija de la pista (15 km por vuelta)
     private static final double DISTANCIA_VUELTA = 15.0;
 
-    // ►►► MÉTODOS PÚBLICOS ◄◄◄
+    // MÉTODOS PÚBLICOS
 
     /**
      * Simula una nueva carrera con los equipos disponibles
@@ -69,7 +69,7 @@ public class Carreras {
         return this.totalCarreras;
     }
 
-    // ►►► MÉTODOS PRIVADOS ◄◄◄
+    // MÉTODOS PRIVADOS
 
     /**
      * Valida los requisitos mínimos para una carrera
@@ -193,32 +193,34 @@ public class Carreras {
             );
         }
     }
-
     /**
      * Muestra el podio en una ventana emergente
      */
     private void mostrarPodio(String nombre, int vueltas, ResultadoCarrera[] resultados) {
         StringBuilder sb = new StringBuilder();
-        sb.append("PODIO OFICIAL\n")
-          .append("== ").append(nombre).append(" - ").append(vueltas).append(" vueltas\n\n");
+        sb.append("===== PODIO FINAL =====\n")
+          .append(nombre).append(" - ").append(vueltas).append(" Vueltas\n");
         
-        int mostrados = 0;
-        for (int i = 0; i < resultados.length && mostrados < 3; i++) {
+        // Mostrar solo los 3 primeros puestos
+        for (int i = 0; i < 3 && i < resultados.length; i++) {
             if (resultados[i] != null) {
-                sb.append(i+1).append("º 🚗 ")
-                  .append(resultados[i].getEquipo())
-                  .append(" - ")
-                  .append(resultados[i].getCorredor())
-                  .append("\n");
-                mostrados++;
+                sb.append(i+1).append("º ")  // Número ordinal (1º, 2º, 3º)
+                  .append(resultados[i].getEquipo()).append(" - ")
+                  .append(resultados[i].getCorredor()).append("\n");
             }
         }
         
         sb.append("\n¡Gran Premio Finalizado!");
-        JOptionPane.showMessageDialog(null, sb.toString(), "Resultados", JOptionPane.INFORMATION_MESSAGE);
+        
+        JOptionPane.showMessageDialog(
+            null, 
+            sb.toString(), 
+            "Resultados de Carrera", 
+            JOptionPane.INFORMATION_MESSAGE
+        );
     }
 
-    // ►►► CLASE INTERNA PARA RESULTADOS TEMPORALES ◄◄◄
+    // CLASE INTERNA PARA RESULTADOS TEMPORALES
     private static class ResultadoCarrera {
         private final String equipo;
         private final String corredor;
@@ -237,4 +239,5 @@ public class Carreras {
         public double getTiempo() { return tiempo; }
         public int getExperiencia() { return experiencia; }
     }
+    
 }
