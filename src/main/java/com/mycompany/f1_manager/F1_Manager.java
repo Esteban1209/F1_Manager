@@ -7,11 +7,12 @@ package com.mycompany.f1_manager;
 /**
  *
  * @author hp
+ * Didier Escamilla
  */
 
 import javax.swing.JOptionPane;
 
-// Clase principal que gestiona el menú de la aplicación F1 Manager.
+// Clase principal que gestiona el menú de la aplicación F1 Manager ;).
 public class F1_Manager {
     // Instancia estática de la clase Equipos para gestionar equipos y corredores.
     private static final Equipos gestorEquipos = new Equipos();
@@ -44,9 +45,31 @@ public class F1_Manager {
                 case "4" -> gestorEquipos.mostrarEquiposCorredores(); // Muestra la lista de equipos y corredores.
                 case "5" -> gestorCarreras.simularCarrera(gestorEquipos); // Simula una carrera usando los equipos registrados.
                 case "6" -> gestorReportes.generarReportes(gestorEquipos, gestorCarreras); // Genera reportes basados en datos de equipos y carreras.
-                case "7" -> System.exit(0); // Termina la ejecución del programa.
+                case "7" -> confirmarSalida(); // Termina la ejecución del programa.
                 default -> JOptionPane.showMessageDialog(null, "Opción inválida"); // Mensaje de error si la opción no es válida.
             }
+        }
+    }
+    /**
+     * Muestra diálogo de confirmación antes de salir del programa
+     */
+    private static void confirmarSalida() {
+        int respuesta = JOptionPane.showConfirmDialog(
+            null, 
+            "¿Está seguro que desea salir del F1 Manager?", 
+            "Confirmar Salida", 
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE
+        );
+        
+        if (respuesta == JOptionPane.YES_OPTION) {
+            JOptionPane.showMessageDialog(
+                null, 
+                "¡Gracias por usar F1 Manager!\nEl programa se cerrará ahora.", 
+                "Despedida", 
+                JOptionPane.INFORMATION_MESSAGE
+            );
+            System.exit(0);
         }
     }
 }
