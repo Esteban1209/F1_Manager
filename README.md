@@ -58,7 +58,7 @@ Permisos de escritura para generar archivos CSV
 📄 Licencia
 Este proyecto está bajo la licencia MIT. Ver LICENSE para más detalles.
 
-Hecho con ❤️ para la clase de Introducción a la Programación del profe Andres
+Hecho con sangre sudor y estres para la clase de Introducción a la Programación del profe Andres, gracias porsu ayuda!
 
 ##Nota:
 Si van a hacer un cambio o algo importante por favor, consultar a  Didier Escamilla
