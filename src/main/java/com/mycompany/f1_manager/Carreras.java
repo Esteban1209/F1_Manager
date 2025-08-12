@@ -127,7 +127,7 @@ public class Carreras {
             Corredor piloto = equipo.getPrincipal();
             double coeficiente = calcularCoeficiente(piloto, equipo);
             double velocidad = 200 * coeficiente;
-            double tiempoTotal = (DISTANCIA_VUELTA / velocidad) * 60 * vueltas;
+            double tiempoTotal = (DISTANCIA_VUELTA / velocidad) * 3600 * vueltas; //Para sacar segundos, si necesitamos sacar el resultados en minutos cambiamos a 60 en vez de 3600
             
             resultados[index++] = new ResultadoCarrera(
                 equipo.getNombre(),
